@@ -60,10 +60,6 @@ impl ScriptEngine {
         self.statuses.get_mut(id)
     }
     
-    pub fn get_status_mut(&mut self, id: &Uuid) -> Option<&mut ScriptStatus> {
-        self.statuses.get_mut(id)
-    }
-    
     pub fn get_all_statuses(&self) -> Vec<(&Uuid, &ScriptStatus)> {
         self.statuses.iter().collect()
     }
