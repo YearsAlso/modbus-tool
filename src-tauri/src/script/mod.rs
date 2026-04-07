@@ -9,5 +9,5 @@ pub mod engine;
 
 pub use trigger::{Trigger, CompareOp};
 pub use action::{Action, SoundType};
-pub use script::Script;
+pub use script::{Script, ScriptStatus};
 pub use engine::ScriptEngine;
