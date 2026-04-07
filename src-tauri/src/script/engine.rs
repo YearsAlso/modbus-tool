@@ -48,6 +48,18 @@ impl ScriptEngine {
         self.statuses.get(id)
     }
     
+    /// Update script running status
+    pub fn set_running(&mut self, id: &Uuid, running: bool) {
+        if let Some(status) = self.statuses.get_mut(id) {
+            status.running = running;
+        }
+    }
+    
+    /// Get mutable status reference
+    pub fn get_status_mut(&mut self, id: &Uuid) -> Option<&mut ScriptStatus> {
+        self.statuses.get_mut(id)
+    }
+    
     pub fn get_status_mut(&mut self, id: &Uuid) -> Option<&mut ScriptStatus> {
         self.statuses.get_mut(id)
     }
