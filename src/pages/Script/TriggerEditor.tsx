@@ -32,20 +32,27 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
   ] as const;
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
+    <Card className="w-full overflow-hidden">
+      <CardHeader className="pb-3 bg-gradient-to-r from-primary/5 to-transparent border-b dark:border-border/50">
         <CardTitle className="flex items-center gap-2 text-base">
-          <Zap className="h-4 w-4 text-yellow-500" />
-          Trigger Condition
+          <div className="flex h-7 w-7 items-center justify-center rounded-md bg-yellow-100 dark:bg-yellow-900/40">
+            <Zap className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+          </div>
+          <span>Trigger Condition</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-4">
         {/* Trigger Type */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Trigger Type</label>
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Trigger Type
+          </label>
           <Select
             value={trigger.type}
             onValueChange={(type) => {
+              const t = triggerTypes.find((t) => t.value === type);
+              if (!t) return;
+
               let newTrigger: Trigger;
               switch (type) {
                 case "compare":
@@ -70,7 +77,7 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
             }}
             disabled={disabled}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full transition-colors focus:ring-2 focus:ring-primary/20">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -85,7 +92,9 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
 
         {/* Register Address */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Register Address</label>
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Register Address
+          </label>
           <Input
             value={trigger.register}
             onChange={(e) => {
@@ -93,17 +102,20 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
             }}
             placeholder="e.g. 40001, 00001"
             disabled={disabled}
+            className="font-mono transition-colors focus:ring-2 focus:ring-primary/20"
           />
           <p className="text-xs text-muted-foreground">
-            Use format: 0XXXX for coils, 1XXXX for discrete inputs, 4XXXX for holding registers, 3XXXX for input registers
+            0XXXX=coils · 1XXXX=discrete inputs · 4XXXX=holding registers · 3XXXX=input registers
           </p>
         </div>
 
         {/* Compare-specific fields */}
         {trigger.type === "compare" && (
-          <>
+          <div className="grid gap-4 sm:grid-cols-2 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Operator</label>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Operator
+              </label>
               <Select
                 value={trigger.operator}
                 onValueChange={(op: CompareOp) => {
@@ -117,7 +129,7 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
                 <SelectContent>
                   {(Object.keys(CompareOpLabels) as CompareOp[]).map((op) => (
                     <SelectItem key={op} value={op}>
-                      {CompareOpLabels[op].symbol} - {CompareOpLabels[op].label}
+                      {CompareOpLabels[op].symbol} — {CompareOpLabels[op].label}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -125,7 +137,9 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Value</label>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Value
+              </label>
               <Input
                 type="number"
                 value={trigger.value}
@@ -133,15 +147,18 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
                   onChange({ ...trigger, value: parseInt(e.target.value) || 0 });
                 }}
                 disabled={disabled}
+                className="transition-colors focus:ring-2 focus:ring-primary/20"
               />
             </div>
-          </>
+          </div>
         )}
 
         {/* Stable-specific fields */}
         {trigger.type === "stable" && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Seconds</label>
+          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Seconds
+            </label>
             <Input
               type="number"
               value={trigger.seconds}
@@ -149,6 +166,8 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
                 onChange({ ...trigger, seconds: parseInt(e.target.value) || 0 });
               }}
               disabled={disabled}
+              min={1}
+              className="transition-colors focus:ring-2 focus:ring-primary/20"
             />
           </div>
         )}

@@ -24,7 +24,7 @@ impl ScriptEngine {
     pub fn add_script(&mut self, script: Script) {
         let id = script.id;
         self.scripts.insert(id, script);
-        self.statuses.insert(id, ScriptStatus::new(id));
+        self.statuses.insert(id, ScriptStatus::new(id);;
     }
     
     pub fn remove_script(&mut self, id: &Uuid) -> Option<Script> {
@@ -158,6 +158,6 @@ mod tests {
             operator: CompareOp::GT,
             value: 30,
         };
-        assert!(engine.check_trigger(&trigger, &registers));
+        assert!(engine.check_trigger(&trigger, &registers));;
     }
 }

@@ -14,7 +14,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Action, SoundType } from "./data";
-import { Trash2 } from "lucide-react";
+import {
+  Trash2,
+  Zap,
+  Bell,
+  Volume2,
+  FileText,
+  Timer,
+  Power,
+  ToggleRight,
+  ListFilter,
+} from "lucide-react";
 
 interface ActionEditorProps {
   action: Action;
@@ -24,43 +34,66 @@ interface ActionEditorProps {
   disabled?: boolean;
 }
 
+const actionTypeMeta: Record<
+  Action["type"],
+  { label: string; icon: React.ReactNode; color: string }
+> = {
+  write_value: { label: "Write Value", icon: <Zap className="h-3.5 w-3.5" />, color: "text-blue-600 dark:text-blue-400" },
+  write_on: { label: "Turn ON", icon: <Power className="h-3.5 w-3.5" />, color: "text-green-600 dark:text-green-400" },
+  write_off: { label: "Turn OFF", icon: <Power className="h-3.5 w-3.5" />, color: "text-orange-600 dark:text-orange-400" },
+  toggle: { label: "Toggle", icon: <ToggleRight className="h-3.5 w-3.5" />, color: "text-purple-600 dark:text-purple-400" },
+  show_notification: { label: "Notification", icon: <Bell className="h-3.5 w-3.5" />, color: "text-yellow-600 dark:text-yellow-400" },
+  play_sound: { label: "Play Sound", icon: <Volume2 className="h-3.5 w-3.5" />, color: "text-pink-600 dark:text-pink-400" },
+  log: { label: "Log Message", icon: <FileText className="h-3.5 w-3.5" />, color: "text-muted-foreground" },
+  delay: { label: "Delay", icon: <Timer className="h-3.5 w-3.5" />, color: "text-cyan-600 dark:text-cyan-400" },
+  run_script: { label: "Run Script", icon: <Zap className="h-3.5 w-3.5" />, color: "text-indigo-600 dark:text-indigo-400" },
+  stop_script: { label: "Stop Script", icon: <Zap className="h-3.5 w-3.5" />, color: "text-red-600 dark:text-red-400" },
+};
+
+const actionTypes = [
+  { value: "write_value", label: "Write Value" },
+  { value: "write_on", label: "Turn ON" },
+  { value: "write_off", label: "Turn OFF" },
+  { value: "toggle", label: "Toggle" },
+  { value: "show_notification", label: "Show Notification" },
+  { value: "play_sound", label: "Play Sound" },
+  { value: "log", label: "Log Message" },
+  { value: "delay", label: "Delay" },
+] as const;
+
 export function ActionEditor({ action, index, onChange, onRemove, disabled }: ActionEditorProps) {
-  const actionTypes = [
-    { value: "write_value", label: "Write Value", icon: "⚡" },
-    { value: "write_on", label: "Turn ON", icon: "🔌" },
-    { value: "write_off", label: "Turn OFF", icon: "⭕" },
-    { value: "toggle", label: "Toggle", icon: "🔄" },
-    { value: "show_notification", label: "Show Notification", icon: "🔔" },
-    { value: "play_sound", label: "Play Sound", icon: "🔊" },
-    { value: "log", label: "Log Message", icon: "📝" },
-    { value: "delay", label: "Delay", icon: "⏱️" },
-  ] as const;
+  const meta = actionTypeMeta[action.type] ?? { label: action.type, icon: <ListFilter className="h-3.5 w-3.5" />, color: "text-muted-foreground" };
 
   return (
-    <Card className="w-full">
-      <CardHeader className="pb-3">
+    <Card className="w-full overflow-hidden transition-shadow hover:shadow-md">
+      <CardHeader className="pb-3 bg-gradient-to-r from-muted/30 to-transparent border-b dark:border-border/50">
         <CardTitle className="flex items-center justify-between text-base">
           <span className="flex items-center gap-2">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary text-xs text-primary-foreground">
+            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-muted text-sm font-semibold">
               {index + 1}
+            </div>
+            <span className={`flex items-center gap-1.5 ${meta.color}`}>
+              {meta.icon}
+              <span className="text-sm">{meta.label}</span>
             </span>
-            Action
           </span>
           <Button
             variant="ghost"
             size="sm"
             onClick={onRemove}
             disabled={disabled}
-            className="text-destructive hover:text-destructive"
+            className="text-muted-foreground/60 hover:text-destructive transition-colors h-8 px-2"
           >
             <Trash2 className="h-4 w-4" />
           </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pt-4">
         {/* Action Type */}
         <div className="space-y-2">
-          <label className="text-sm font-medium">Action Type</label>
+          <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+            Action Type
+          </label>
           <Select
             value={action.type}
             onValueChange={(type: Action["type"]) => {
@@ -97,13 +130,14 @@ export function ActionEditor({ action, index, onChange, onRemove, disabled }: Ac
             }}
             disabled={disabled}
           >
-            <SelectTrigger>
+            <SelectTrigger className="w-full transition-colors focus:ring-2 focus:ring-primary/20">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
               {actionTypes.map((t) => (
                 <SelectItem key={t.value} value={t.value}>
-                  {t.icon} {t.label}
+                  {actionTypeMeta[t.value]?.icon}{" "}
+                  <span className="ml-1.5">{t.label}</span>
                 </SelectItem>
               ))}
             </SelectContent>
@@ -111,24 +145,30 @@ export function ActionEditor({ action, index, onChange, onRemove, disabled }: Ac
         </div>
 
         {/* Register-based actions */}
-        {["write_value", "write_on", "write_off", "toggle"].includes(action.type) && (
+        {(action.type === "write_value" || action.type === "write_on" || action.type === "write_off" || action.type === "toggle") && (
           <div className="space-y-2">
-            <label className="text-sm font-medium">Register Address</label>
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Register Address
+            </label>
             <Input
-              value={action.register}
+              value={(action as Action & { register: string }).register}
               onChange={(e) => {
-                onChange({ ...action, register: e.target.value } as Action);
+                const reg = (action as Action & { register: string });
+                onChange({ ...reg, register: e.target.value } as Action);
               }}
               placeholder="e.g. 40001, 00001"
               disabled={disabled}
+              className="font-mono transition-colors focus:ring-2 focus:ring-primary/20"
             />
           </div>
         )}
 
         {/* Write Value specific */}
         {action.type === "write_value" && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Value</label>
+          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Value
+            </label>
             <Input
               type="number"
               value={action.value}
@@ -136,15 +176,18 @@ export function ActionEditor({ action, index, onChange, onRemove, disabled }: Ac
                 onChange({ ...action, value: parseInt(e.target.value) || 0 });
               }}
               disabled={disabled}
+              className="transition-colors focus:ring-2 focus:ring-primary/20"
             />
           </div>
         )}
 
         {/* Show Notification specific */}
         {action.type === "show_notification" && (
-          <>
+          <div className="space-y-3 animate-in fade-in slide-in-from-top-2 duration-200">
             <div className="space-y-2">
-              <label className="text-sm font-medium">Title</label>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Title
+              </label>
               <Input
                 value={action.title}
                 onChange={(e) => {
@@ -152,10 +195,13 @@ export function ActionEditor({ action, index, onChange, onRemove, disabled }: Ac
                 }}
                 placeholder="Alert title"
                 disabled={disabled}
+                className="transition-colors focus:ring-2 focus:ring-primary/20"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm font-medium">Message</label>
+              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                Message
+              </label>
               <Input
                 value={action.message}
                 onChange={(e) => {
@@ -163,15 +209,18 @@ export function ActionEditor({ action, index, onChange, onRemove, disabled }: Ac
                 }}
                 placeholder="Notification message"
                 disabled={disabled}
+                className="transition-colors focus:ring-2 focus:ring-primary/20"
               />
             </div>
-          </>
+          </div>
         )}
 
         {/* Play Sound specific */}
         {action.type === "play_sound" && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Sound Type</label>
+          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Sound Type
+            </label>
             <Select
               value={action.sound}
               onValueChange={(sound: SoundType) => {
@@ -193,8 +242,10 @@ export function ActionEditor({ action, index, onChange, onRemove, disabled }: Ac
 
         {/* Log Message specific */}
         {action.type === "log" && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Message</label>
+          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Message
+            </label>
             <Input
               value={action.message}
               onChange={(e) => {
@@ -202,14 +253,17 @@ export function ActionEditor({ action, index, onChange, onRemove, disabled }: Ac
               }}
               placeholder="Message to log"
               disabled={disabled}
+              className="transition-colors focus:ring-2 focus:ring-primary/20"
             />
           </div>
         )}
 
         {/* Delay specific */}
         {action.type === "delay" && (
-          <div className="space-y-2">
-            <label className="text-sm font-medium">Seconds</label>
+          <div className="space-y-2 animate-in fade-in slide-in-from-top-2 duration-200">
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              Seconds
+            </label>
             <Input
               type="number"
               value={action.seconds}
@@ -217,6 +271,9 @@ export function ActionEditor({ action, index, onChange, onRemove, disabled }: Ac
                 onChange({ ...action, seconds: parseInt(e.target.value) || 0 });
               }}
               disabled={disabled}
+              min={0.1}
+              step={0.5}
+              className="transition-colors focus:ring-2 focus:ring-primary/20"
             />
           </div>
         )}
