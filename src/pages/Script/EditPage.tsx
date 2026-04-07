@@ -5,7 +5,7 @@
 
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,6 @@ import { useScriptStore } from "./store";
 import { TriggerEditor } from "./TriggerEditor";
 import { ActionEditor } from "./ActionEditor";
 import type { Script, Action } from "./data";
-import { getTriggerDescription, getActionDescription } from "./data";
 import {
   ArrowLeft,
   Save,
@@ -27,7 +26,7 @@ import {
 export function ScriptEditPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { scripts, updateScript, addAction, removeAction } = useScriptStore();
+  const { scripts, updateScript } = useScriptStore();
 
   const script = scripts.find((s) => s.id === id);
 

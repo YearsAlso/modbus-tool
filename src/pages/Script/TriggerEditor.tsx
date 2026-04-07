@@ -3,10 +3,8 @@
  * Editor for trigger conditions (register + operator + value)
  */
 
-import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -48,9 +46,6 @@ export function TriggerEditor({ trigger, onChange, disabled }: TriggerEditorProp
           <Select
             value={trigger.type}
             onValueChange={(type) => {
-              const t = triggerTypes.find((t) => t.value === type);
-              if (!t) return;
-              
               let newTrigger: Trigger;
               switch (type) {
                 case "compare":

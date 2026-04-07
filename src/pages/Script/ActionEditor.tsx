@@ -3,7 +3,6 @@
  * Editor for automation actions (write, notify, log, etc.)
  */
 
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Action, SoundType } from "./data";
-import { Play, Trash2, Bell, Volume2, FileText, Timer } from "lucide-react";
+import { Trash2 } from "lucide-react";
 
 interface ActionEditorProps {
   action: Action;

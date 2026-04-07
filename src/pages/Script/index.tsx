@@ -5,7 +5,7 @@
 
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useScriptStore } from "./store";
-import { getTriggerDescription, getActionDescription, type Trigger, type Action } from "./data";
+import { getTriggerDescription, type Trigger } from "./data";
 import {
   Plus,
   Pencil,
@@ -75,10 +75,6 @@ export function ScriptListPage() {
     } finally {
       setCreating(false);
     }
-  };
-
-  const handleDelete = async (id: string) => {
-    setDeletingId(id);
   };
 
   const confirmDelete = async () => {
@@ -212,7 +208,6 @@ export function ScriptListPage() {
           {filteredScripts.map((script) => {
             const status = statuses[script.id];
             const isRunning = status?.running ?? false;
-            const scriptToDelete = scripts.find((s) => s.id === deletingId);
 
             return (
               <div key={script.id} className="group relative">
