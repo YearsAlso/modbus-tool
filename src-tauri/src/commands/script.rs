@@ -191,7 +191,7 @@ pub fn script_evaluate(registers: HashMap<String, u16>) -> CommandResponse<Vec<S
 fn script_evaluate_inner(registers: HashMap<String, u16>) -> Result<Vec<String>> {
     let mut engine = SCRIPT_ENGINE.lock();
     let triggered = engine.evaluate(&registers);
-    Ok(triggered.into_iter().map(|u| u.to_string()).collect())
+    Ok(triggered.into_iter().map(|u: Uuid| u.to_string()).collect())
 }
 
 /// Execute actions for a triggered script
@@ -212,5 +212,5 @@ pub fn script_execute(id: String) -> CommandResponse<Vec<String>> {
 fn script_execute_inner(id: &str) -> Result<Vec<String>> {
     let uuid = Uuid::parse_str(id).map_err(|_| Error::Parse(format!("Invalid UUID: {}", id)))?;
     let mut engine = SCRIPT_ENGINE.lock();
-    engine.execute_script(&uuid).map_err(|e| Error::Other(e))?
+    engine.execute_script(&uuid).map_err(Error::Other)?
 }
