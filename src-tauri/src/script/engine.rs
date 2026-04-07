@@ -1,10 +1,9 @@
 //! Script execution engine - Simplified version
 
 use std::collections::HashMap;
-use std::time::Instant;
 use uuid::Uuid;
 
-use super::{Action, Script, ScriptStatus, Trigger};
+use super::{Script, ScriptStatus, Trigger};
 use super::trigger::CompareOp;
 
 pub struct ScriptEngine {
@@ -84,8 +83,9 @@ impl ScriptEngine {
             Trigger::BecameOff { register } => {
                 self.check_became(register, false, registers)
             }
-            Trigger::Stable { register, seconds } => {
-                self.check_stable(register, *seconds, registers)
+            Trigger::Stable { register, .. } => {
+                // Simplified: just check if register exists
+                registers.contains_key(register)
             }
         }
     }
@@ -107,13 +107,6 @@ impl ScriptEngine {
         let last = self.last_values.get(register);
         let became_state = if became_on { *current != 0 } else { *current == 0 };
         became_state && last != Some(current)
-    }
-    
-    fn check_stable(&self, register: &str, _seconds: u64, registers: &HashMap<String, u16>) -> bool {
-        let Some(_current) = registers.get(register) else { return false; };
-        // Simplified: stable check would need timer tracking
-        // For now, always return false to avoid constant triggering
-        false
     }
 }
 
