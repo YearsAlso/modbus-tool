@@ -2,7 +2,7 @@
 
 use crate::commands::CommandResponse;
 use crate::error::{Error, Result};
-use crate::script::{Action, Script, ScriptEngine, ScriptStatus, Trigger};
+use crate::script::{Script, ScriptEngine, ScriptStatus};
 use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::sync::Arc;
@@ -133,7 +133,7 @@ pub fn script_start(id: String) -> CommandResponse<bool> {
 fn script_start_inner(id: &str) -> Result<()> {
     let uuid = Uuid::parse_str(id).map_err(|_| Error::Parse(format!("Invalid UUID: {}", id)))?;
     let mut engine = SCRIPT_ENGINE.lock();
-    if let Some(status) = engine.statuses.get_mut(&uuid) {
+    if let Some(status) = engine.get_status_mut(&uuid) {
         status.running = true;
     }
     Ok(())
@@ -157,7 +157,7 @@ pub fn script_stop(id: String) -> CommandResponse<bool> {
 fn script_stop_inner(id: &str) -> Result<()> {
     let uuid = Uuid::parse_str(id).map_err(|_| Error::Parse(format!("Invalid UUID: {}", id)))?;
     let mut engine = SCRIPT_ENGINE.lock();
-    if let Some(status) = engine.statuses.get_mut(&uuid) {
+    if let Some(status) = engine.get_status_mut(&uuid) {
         status.running = false;
     }
     Ok(())
@@ -168,8 +168,8 @@ fn script_stop_inner(id: &str) -> Result<()> {
 pub fn script_list_statuses() -> CommandResponse<HashMap<String, ScriptStatus>> {
     let engine = SCRIPT_ENGINE.lock();
     let statuses: HashMap<String, ScriptStatus> = engine
-        .statuses
-        .iter()
+        .get_all_statuses()
+        .into_iter()
         .map(|(id, status)| (id.to_string(), status.clone()))
         .collect();
     CommandResponse::ok(statuses)
@@ -212,5 +212,5 @@ pub fn script_execute(id: String) -> CommandResponse<Vec<String>> {
 fn script_execute_inner(id: &str) -> Result<Vec<String>> {
     let uuid = Uuid::parse_str(id).map_err(|_| Error::Parse(format!("Invalid UUID: {}", id)))?;
     let mut engine = SCRIPT_ENGINE.lock();
-    engine.execute_script(&uuid).map_err(Error::Other)?
+    engine.execute_script(&uuid).map_err(|e| Error::Other(e))
 }

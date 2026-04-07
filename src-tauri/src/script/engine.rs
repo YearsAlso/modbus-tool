@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use super::trigger::CompareOp;
-use super::{Action, Script, ScriptStatus, Trigger};
+use super::{Script, ScriptStatus, Trigger};
 
 pub struct ScriptEngine {
     scripts: HashMap<Uuid, Script>,
@@ -46,6 +46,14 @@ impl ScriptEngine {
     
     pub fn get_status(&self, id: &Uuid) -> Option<&ScriptStatus> {
         self.statuses.get(id)
+    }
+    
+    pub fn get_status_mut(&mut self, id: &Uuid) -> Option<&mut ScriptStatus> {
+        self.statuses.get_mut(id)
+    }
+    
+    pub fn get_all_statuses(&self) -> Vec<(&Uuid, &ScriptStatus)> {
+        self.statuses.iter().collect()
     }
     
     /// Evaluate all scripts with current register values
