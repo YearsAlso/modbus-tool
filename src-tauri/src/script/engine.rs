@@ -37,7 +37,7 @@ impl ScriptEngine {
     pub fn add_script(&mut self, script: Script) {
         let id = script.id;
         self.scripts.insert(id, script);
-        self.statuses.insert(id, ScriptStatus::new(id));
+        self.statuses.insert(id, ScriptStatus::new(id);
     }
 
     /// Remove a script by ID
@@ -113,11 +113,11 @@ impl ScriptEngine {
     }
 
     /// Check compare trigger
-    fn check_compare(&self, register: &str, operator: CompareOp, expected: u16, registers: &HashMap<String, u16>) -> bool {
+    fn check_compare(&self, register: &str, operator: CompareOp, expected: i64, registers: &HashMap<String, u16>) -> bool {
         let Some(&actual) = registers.get(register) else {
             return false;
         };
-        operator.evaluate(actual as i64, expected as i64)
+        operator.evaluate(actual as i64, expected)
     }
 
     /// Check changed trigger
