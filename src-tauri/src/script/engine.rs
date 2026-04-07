@@ -3,8 +3,8 @@
 use std::collections::HashMap;
 use uuid::Uuid;
 
-use super::{Script, ScriptStatus, Trigger};
 use super::trigger::CompareOp;
+use super::{Script, ScriptStatus, Trigger};
 
 pub struct ScriptEngine {
     scripts: HashMap<Uuid, Script>,
@@ -44,7 +44,6 @@ impl ScriptEngine {
         self.statuses.get(id)
     }
     
-    /// Evaluate all enabled triggers, returns triggered script IDs
     pub fn evaluate(&mut self, registers: &HashMap<String, u16>) -> Vec<Uuid> {
         let mut triggered = Vec::new();
         
@@ -61,7 +60,6 @@ impl ScriptEngine {
             }
         }
         
-        // Update last values
         for (addr, value) in registers {
             self.last_values.insert(addr.clone(), *value);
         }
@@ -84,7 +82,6 @@ impl ScriptEngine {
                 self.check_became(register, false, registers)
             }
             Trigger::Stable { register, .. } => {
-                // Simplified: just check if register exists
                 registers.contains_key(register)
             }
         }
