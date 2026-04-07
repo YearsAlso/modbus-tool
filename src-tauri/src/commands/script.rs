@@ -2,7 +2,7 @@
 
 use crate::commands::CommandResponse;
 use crate::error::{Error, Result};
-use modbus_tool_lib::{Action, Script, ScriptEngine, ScriptStatus, Trigger};
+use crate::script::{Action, Script, ScriptEngine, ScriptStatus, Trigger};
 use parking_lot::Mutex;
 use std::collections::HashMap;
 use std::sync::Arc;
