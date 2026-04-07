@@ -54,29 +54,32 @@ impl RtuFramer {
         }
     }
 
-    /// Calculate character time in milliseconds for current baud rate
     fn char_time_ms(&self) -> u64 {
-        // 10 bits per character (8 data + 1 start + 1 stop, or 8 data + parity + 1 stop)
-        // Use 10 bits for 8N1 configuration
+        // 10 bits per character (8 data + 1 start + 1 stop)
+        // Use floor division: 10000/9600 = 1.04 -> 1ms
         let divisor = self.baud_rate.max(1) as u64;
-        (10_000u64).div_ceil(divisor)
+        (10_000u64) / divisor
     }
 
     /// Calculate inter-character timeout based on baud rate
     ///
-    /// Per Modbus spec: 1.5 character times between bytes in a frame
+    /// Per Modbus spec: 1.5 character times between bytes in a frame.
+    /// Uses ceiling division: ceil(char_time * 1.5)
     pub fn inter_char_timeout(&self) -> Duration {
         let char_time = self.char_time_ms();
-        let timeout_ms = (char_time * 3) / 2; // 1.5x with integer math
+        // Ceiling division: ((n * 3) + 1) / 2
+        let timeout_ms = ((char_time * 3) + 1) / 2;
         Duration::from_millis(timeout_ms.max(1u64))
     }
 
     /// Calculate frame timeout based on baud rate
     ///
-    /// Per Modbus spec: 3.5 character times of silence marks end of frame
+    /// Per Modbus spec: 3.5 character times of silence marks end of frame.
+    /// Uses ceiling division: ceil(char_time * 3.5)
     pub fn frame_timeout(&self) -> Duration {
         let char_time = self.char_time_ms();
-        let timeout_ms = (char_time * 7) / 2; // 3.5x with integer math
+        // Ceiling division: ((n * 7) + 1) / 2
+        let timeout_ms = ((char_time * 7) + 1) / 2;
         Duration::from_millis(timeout_ms.max(4u64))
     }
 
@@ -246,15 +249,21 @@ impl RtuFramer {
     }
 
     /// Calculate the inter-byte timeout for a given baud rate
+    /// Uses ceiling division: ceil(char_time * 1.5)
     pub fn calc_inter_char_timeout(baud_rate: u32) -> Duration {
         let char_time_ms: u64 = (10 * 1000) / baud_rate.max(1) as u64;
-        Duration::from_millis(((char_time_ms * 3) / 2).max(1u64))
+        // Ceiling: ((n * 3) + 1) / 2, then max(1)
+        let timeout_ms = (((char_time_ms * 3) + 1) / 2).max(1u64);
+        Duration::from_millis(timeout_ms)
     }
 
     /// Calculate the frame timeout for a given baud rate
+    /// Uses ceiling division: ceil(char_time * 3.5)
     pub fn calc_frame_timeout(baud_rate: u32) -> Duration {
         let char_time_ms: u64 = (10 * 1000) / baud_rate.max(1) as u64;
-        Duration::from_millis(((char_time_ms * 7) / 2).max(4u64))
+        // Ceiling: ((n * 7) + 1) / 2, then max(4)
+        let timeout_ms = (((char_time_ms * 7) + 1) / 2).max(4u64);
+        Duration::from_millis(timeout_ms)
     }
 }
 

@@ -28,6 +28,15 @@ fn main() {
             commands::tcp::tcp_is_connected,
             commands::tcp::tcp_write,
             commands::tcp::tcp_read,
+            // Script commands
+            commands::script::script_list,
+            commands::script::script_get,
+            commands::script::script_save,
+            commands::script::script_delete,
+            commands::script::script_status,
+            commands::script::script_start,
+            commands::script::script_stop,
+            commands::script::script_list_statuses,
         ])
         .run(tauri::generate_context!());
 

@@ -2,6 +2,7 @@
 
 pub mod serial;
 pub mod tcp;
+pub mod script;
 
 use serde::{Deserialize, Serialize};
 

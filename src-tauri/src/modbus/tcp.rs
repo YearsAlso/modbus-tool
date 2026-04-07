@@ -252,7 +252,8 @@ impl ModbusTcpSession {
     /// Build a TCP request frame with fresh transaction ID
     pub fn build_request(&self, pdu: &ModbusPdu) -> ModbusTcpFrame {
         let transaction_id = self.transactions.next_transaction_id();
-        let length = 1 + pdu.data.len() as u16; // unit_id + pdu
+        // MBAP length = unit_id (1) + function_code (1) + data (n)
+        let length = 2 + pdu.data.len() as u16;
 
         ModbusTcpFrame {
             mbap: MbapHeader {

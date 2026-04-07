@@ -9,6 +9,8 @@ pub mod modbus;
 pub mod script;
 pub mod storage;
 
+pub use commands::CommandResponse;
+
 pub use error::{Error, Result};
 pub use logging::init_logging;
 
@@ -16,4 +18,4 @@ pub use logging::init_logging;
 pub use modbus::protocol::*;
 
 // Re-export script items for convenience
-pub use script::{Script, ScriptEngine, Trigger, Action};
+pub use script::{Script, ScriptEngine, ScriptStatus, Trigger, Action, CompareOp};

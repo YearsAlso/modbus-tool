@@ -7,6 +7,7 @@ import {
   Settings,
   Menu,
   X,
+  Zap,
 } from "lucide-react";
 
 interface AppLayoutProps {
@@ -16,6 +17,7 @@ interface AppLayoutProps {
 const navItems = [
   { path: "/connection", label: "Connection", icon: Cable },
   { path: "/monitor", label: "Monitor", icon: Activity },
+  { path: "/scripts", label: "Scripts", icon: Zap },
   { path: "/settings", label: "Settings", icon: Settings },
 ];
 
@@ -80,9 +82,10 @@ export function AppLayout({ children }: AppLayoutProps) {
       {/* Main content */}
       <main className="flex flex-1 flex-col overflow-hidden">
         {/* Header */}
+        {/* Header */}
         <header className="flex h-14 items-center justify-between border-b bg-card px-4">
           <h1 className="text-lg font-medium">
-            {navItems.find((item) => item.path === location.pathname)?.label || "Modbus Tool"}
+            {navItems.find((item) => location.pathname.startsWith(item.path))?.label || "Modbus Tool"}
           </h1>
         </header>
 
