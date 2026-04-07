@@ -31,6 +31,7 @@ once_cell = "1"
 uuid = { version = "1", features = ["v4"] }
 rusqlite = { version = "0.31", features = ["bundled"] }
 bytes = "1"
+chrono = { version = "0.4", features = ["serde"] }
 
 [profile.release]
 panic = "abort"
