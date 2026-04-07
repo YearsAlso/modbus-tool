@@ -4,7 +4,7 @@ use std::collections::HashMap;
 use uuid::Uuid;
 
 use super::trigger::CompareOp;
-use super::{Script, ScriptStatus, Trigger};
+use super::{Action, Script, ScriptStatus, Trigger};
 
 pub struct ScriptEngine {
     scripts: HashMap<Uuid, Script>,
@@ -24,7 +24,7 @@ impl ScriptEngine {
     pub fn add_script(&mut self, script: Script) {
         let id = script.id;
         self.scripts.insert(id, script);
-        self.statuses.insert(id, ScriptStatus::new(id);;
+        self.statuses.insert(id, ScriptStatus::new(id));
     }
     
     pub fn remove_script(&mut self, id: &Uuid) -> Option<Script> {
@@ -58,7 +58,7 @@ impl ScriptEngine {
         
         for id in script_ids {
             // Get immutable references
-            let (enabled, trigger) = {
+            let trigger = {
                 let script = match self.scripts.get(&id) {
                     Some(s) => s,
                     None => continue,
@@ -66,7 +66,7 @@ impl ScriptEngine {
                 if !script.enabled {
                     continue;
                 }
-                (script.enabled, script.trigger.clone())
+                script.trigger.clone()
             };
             
             // Check trigger
@@ -127,6 +127,47 @@ impl ScriptEngine {
         let became_state = if became_on { *current != 0 } else { *current == 0 };
         became_state && last != Some(current)
     }
+    
+    /// Execute actions for a triggered script
+    /// Returns list of action descriptions that were executed
+    pub fn execute_script(&mut self, id: &Uuid) -> Result<Vec<String>, String> {
+        let script = match self.scripts.get(id) {
+            Some(s) => s,
+            None => return Err("Script not found".to_string()),
+        };
+        
+        if !script.enabled {
+            return Err("Script is disabled".to_string());
+        }
+        
+        // Mark as running
+        if let Some(status) = self.statuses.get_mut(id) {
+            status.running = true;
+        }
+        
+        let mut executed = Vec::new();
+        for action in &script.actions {
+            // Log the action execution
+            let desc = action.description();
+            executed.push(desc.clone());
+            tracing::info!("Script '{}' executing action: {}", script.name, desc);
+        }
+        
+        // Mark as finished (in real impl, this would be async)
+        if let Some(status) = self.statuses.get_mut(id) {
+            status.running = false;
+            status.last_triggered = Some(chrono::Utc::now());
+        }
+        
+        Ok(executed)
+    }
+    
+    /// Get the action queue for a script (for UI display)
+    pub fn get_script_actions(&self, id: &Uuid) -> Option<Vec<String>> {
+        self.scripts.get(id).map(|s| {
+            s.actions.iter().map(|a| a.description()).collect()
+        })
+    }
 }
 
 impl Default for ScriptEngine {
@@ -158,6 +199,76 @@ mod tests {
             operator: CompareOp::GT,
             value: 30,
         };
-        assert!(engine.check_trigger(&trigger, &registers));;
+        assert!(engine.check_trigger(&trigger, &registers));
+    }
+    
+    #[test]
+    fn test_evaluate_triggered() {
+        let mut engine = ScriptEngine::new();
+        let script = Script::new("Test".to_string(), Trigger::Compare {
+            register: "40001".to_string(),
+            operator: CompareOp::GT,
+            value: 30,
+        });
+        let id = script.id;
+        engine.add_script(script);
+        
+        let mut registers = HashMap::new();
+        registers.insert("40001".to_string(), 50);
+        
+        let triggered = engine.evaluate(&registers);
+        assert_eq!(triggered.len(), 1);
+        assert_eq!(triggered[0], id);
+    }
+    
+    #[test]
+    fn test_evaluate_not_triggered() {
+        let mut engine = ScriptEngine::new();
+        let script = Script::new("Test".to_string(), Trigger::Compare {
+            register: "40001".to_string(),
+            operator: CompareOp::GT,
+            value: 30,
+        });
+        engine.add_script(script);
+        
+        let mut registers = HashMap::new();
+        registers.insert("40001".to_string(), 20);
+        
+        let triggered = engine.evaluate(&registers);
+        assert!(triggered.is_empty());
+    }
+    
+    #[test]
+    fn test_execute_script() {
+        let mut engine = ScriptEngine::new();
+        let mut script = Script::new("Test".to_string(), Trigger::Changed {
+            register: "40001".to_string(),
+        });
+        script.add_action(Action::WriteOn {
+            register: "00001".to_string(),
+        });
+        script.add_action(Action::ShowNotification {
+            title: "Alert".to_string(),
+            message: "Triggered!".to_string(),
+        });
+        let id = script.id;
+        engine.add_script(script);
+        
+        let result = engine.execute_script(&id);
+        assert!(result.is_ok());
+        let actions = result.unwrap();
+        assert_eq!(actions.len(), 2);
+        assert_eq!(actions[0], "Turn ON 00001");
+        assert_eq!(actions[1], "Notify: Alert - Triggered!");
+    }
+    
+    #[test]
+    fn test_execute_nonexistent_script() {
+        let mut engine = ScriptEngine::new();
+        let id = Uuid::new_v4();
+        
+        let result = engine.execute_script(&id);
+        assert!(result.is_err());
+        assert_eq!(result.unwrap_err(), "Script not found");
     }
 }

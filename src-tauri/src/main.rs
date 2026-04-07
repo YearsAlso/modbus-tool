@@ -37,6 +37,8 @@ fn main() {
             commands::script::script_start,
             commands::script::script_stop,
             commands::script::script_list_statuses,
+            commands::script::script_evaluate,
+            commands::script::script_execute,
         ])
         .run(tauri::generate_context!());
 

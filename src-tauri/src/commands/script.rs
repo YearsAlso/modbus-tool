@@ -174,3 +174,43 @@ pub fn script_list_statuses() -> CommandResponse<HashMap<String, ScriptStatus>> 
         .collect();
     CommandResponse::ok(statuses)
 }
+
+/// Evaluate all scripts with current register values
+/// Returns IDs of triggered scripts
+#[tauri::command]
+pub fn script_evaluate(registers: HashMap<String, u16>) -> CommandResponse<Vec<String>> {
+    match script_evaluate_inner(registers) {
+        Ok(triggered) => CommandResponse::ok(triggered),
+        Err(e) => {
+            error!("Failed to evaluate scripts: {}", e);
+            CommandResponse::err(e.code(), e.to_string())
+        }
+    }
+}
+
+fn script_evaluate_inner(registers: HashMap<String, u16>) -> Result<Vec<String>> {
+    let mut engine = SCRIPT_ENGINE.lock();
+    let triggered = engine.evaluate(&registers);
+    Ok(triggered.into_iter().map(|u| u.to_string()).collect())
+}
+
+/// Execute actions for a triggered script
+#[tauri::command]
+pub fn script_execute(id: String) -> CommandResponse<Vec<String>> {
+    match script_execute_inner(&id) {
+        Ok(executed) => {
+            info!("Script {} executed {} actions", id, executed.len());
+            CommandResponse::ok(executed)
+        }
+        Err(e) => {
+            error!("Failed to execute script {}: {}", id, e);
+            CommandResponse::err(e.code(), e.to_string())
+        }
+    }
+}
+
+fn script_execute_inner(id: &str) -> Result<Vec<String>> {
+    let uuid = Uuid::parse_str(id).map_err(|_| Error::Parse(format!("Invalid UUID: {}", id)))?;
+    let mut engine = SCRIPT_ENGINE.lock();
+    engine.execute_script(&uuid).map_err(|e| Error::Other(e))?
+}
