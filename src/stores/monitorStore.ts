@@ -11,7 +11,7 @@ interface MonitorState {
   clearHistory: (id: string) => void;
   clearAll: () => void;
   setMonitoring: (isMonitoring: boolean) => void;
-  setInterval: (interval: number) => void;
+  setPollInterval: (interval: number) => void;
 }
 
 export const useMonitorStore = create<MonitorState>((set) => ({
@@ -64,5 +64,5 @@ export const useMonitorStore = create<MonitorState>((set) => ({
   
   setMonitoring: (isMonitoring) => set({ isMonitoring }),
   
-  setInterval: (interval) => set({ interval }),
+  setPollInterval: (interval) => set({ interval }),
 }));

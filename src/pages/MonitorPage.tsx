@@ -31,7 +31,7 @@ const colors = ["#3b82f6", "#ef4444", "#22c55e", "#f59e0b", "#8b5cf6", "#ec4899"
 
 export function MonitorPage() {
   const { status } = useConnectionStore();
-  const { points, addPoint, removePoint, clearAll, isMonitoring, setMonitoring, interval, setInterval } = useMonitorStore();
+  const { points, addPoint, removePoint, clearAll, isMonitoring, setMonitoring, interval } = useMonitorStore();
   const { readRegisters } = useModbus();
 
   const [newRegister, setNewRegister] = useState<Partial<MonitoredRegister>>({
@@ -85,7 +85,6 @@ export function MonitorPage() {
 
   return (
     <div className="space-y-6">
-      {/* Add Register Form */}
       <Card>
         <CardHeader>
           <CardTitle>Add Monitor Point</CardTitle>
@@ -171,7 +170,6 @@ export function MonitorPage() {
         </CardContent>
       </Card>
 
-      {/* Monitor Points List */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
@@ -214,7 +212,6 @@ export function MonitorPage() {
             </p>
           ) : (
             <div className="space-y-4">
-              {/* Chart */}
               <div className="h-64 w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <LineChart>
@@ -236,7 +233,6 @@ export function MonitorPage() {
                 </ResponsiveContainer>
               </div>
 
-              {/* Points Table */}
               <div className="border rounded-lg">
                 <table className="w-full">
                   <thead className="bg-muted">

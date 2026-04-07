@@ -1,7 +1,8 @@
 import { useCallback } from "react";
 import { useConnectionStore } from "@/stores";
 import * as ipc from "@/lib/ipc";
-import type { ConnectionConfig, ModbusFunctionCode, ModbusMessage } from "@/types";
+import type { ModbusFunctionCode, ModbusMessage } from "@/types";
+import type { ConnectionConfig } from "@/lib/ipc";
 
 export function useModbus() {
   const { status, setStatus, setError, addMessage } = useConnectionStore();
@@ -70,7 +71,6 @@ export function useModbus() {
           throw new Error(`Unsupported function code: ${functionCode}`);
       }
 
-      // Log the message
       const message: ModbusMessage = {
         id: crypto.randomUUID(),
         direction: "response",
@@ -87,32 +87,9 @@ export function useModbus() {
     }
   }, [setError, addMessage]);
 
-  const writeRegister = useCallback(async (
-    functionCode: ModbusFunctionCode,
-    address: number,
-    value: number | boolean | number[]
-  ) => {
+  const writeSingleCoil = useCallback(async (address: number, value: boolean) => {
     try {
-      let response;
-      
-      switch (functionCode) {
-        case 0x05:
-          response = await ipc.writeSingleCoil(address, value as boolean);
-          break;
-        case 0x06:
-          response = await ipc.writeSingleRegister(address, value as number);
-          break;
-        case 0x0F:
-          response = await ipc.writeMultipleCoils(address, value as boolean[]);
-          break;
-        case 0x10:
-          response = await ipc.writeMultipleRegisters(address, value as number[]);
-          break;
-        default:
-          throw new Error(`Unsupported function code: ${functionCode}`);
-      }
-
-      // Log the message
+      const response = await ipc.writeSingleCoil(address, value);
       const message: ModbusMessage = {
         id: crypto.randomUUID(),
         direction: "response",
@@ -121,7 +98,42 @@ export function useModbus() {
         timestamp: response.timestamp,
       };
       addMessage(message);
+      return response;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Write failed");
+      throw err;
+    }
+  }, [setError, addMessage]);
 
+  const writeSingleRegister = useCallback(async (address: number, value: number) => {
+    try {
+      const response = await ipc.writeSingleRegister(address, value);
+      const message: ModbusMessage = {
+        id: crypto.randomUUID(),
+        direction: "response",
+        raw: response.data?.map((v) => v.toString(16).padStart(2, "0")).join(" ") || "",
+        parsed: response,
+        timestamp: response.timestamp,
+      };
+      addMessage(message);
+      return response;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Write failed");
+      throw err;
+    }
+  }, [setError, addMessage]);
+
+  const writeMultipleRegisters = useCallback(async (address: number, values: number[]) => {
+    try {
+      const response = await ipc.writeMultipleRegisters(address, values);
+      const message: ModbusMessage = {
+        id: crypto.randomUUID(),
+        direction: "response",
+        raw: response.data?.map((v) => v.toString(16).padStart(2, "0")).join(" ") || "",
+        parsed: response,
+        timestamp: response.timestamp,
+      };
+      addMessage(message);
       return response;
     } catch (err) {
       setError(err instanceof Error ? err.message : "Write failed");
@@ -134,6 +146,8 @@ export function useModbus() {
     connect,
     disconnect,
     readRegisters,
-    writeRegister,
+    writeSingleCoil,
+    writeSingleRegister,
+    writeMultipleRegisters,
   };
 }

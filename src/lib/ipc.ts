@@ -1,13 +1,15 @@
 import { invoke } from "@tauri-apps/api/core";
 import type {
-  ConnectionConfig,
+  SerialConfig,
+  NetworkConfig,
   ModbusRequest,
   ModbusResponse,
   ModbusRegister,
   ConnectionStatus,
 } from "@/types";
 
-// Connection commands
+export type ConnectionConfig = SerialConfig | NetworkConfig;
+
 export async function connect(config: ConnectionConfig): Promise<{ success: boolean; error?: string }> {
   return invoke("connect", { config });
 }
@@ -20,7 +22,6 @@ export async function getConnectionStatus(): Promise<ConnectionStatus> {
   return invoke("get_connection_status");
 }
 
-// Modbus operations
 export async function readCoils(address: number, quantity: number): Promise<ModbusResponse> {
   return invoke("read_coils", { address, quantity });
 }
@@ -53,7 +54,6 @@ export async function writeMultipleRegisters(address: number, values: number[]):
   return invoke("write_multiple_registers", { address, values });
 }
 
-// Register operations
 export async function getRegisterValue(address: number): Promise<ModbusRegister | null> {
   return invoke("get_register_value", { address });
 }
@@ -62,17 +62,14 @@ export async function setRegisterValue(address: number, value: number): Promise<
   return invoke("set_register_value", { address, value });
 }
 
-// Serial port operations
 export async function listSerialPorts(): Promise<string[]> {
   return invoke("list_serial_ports");
 }
 
-// Generic send function
 export async function sendModbusRequest(request: ModbusRequest): Promise<ModbusResponse> {
   return invoke("send_modbus_request", { request });
 }
 
-// Settings
 export interface AppSettings {
   theme: "light" | "dark" | "system";
   language: "en" | "zh-CN";

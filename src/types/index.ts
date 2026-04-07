@@ -1,1 +1,16 @@
-export * from "./modbus";
+export type {
+  ModbusProtocol,
+  ModbusFunctionCode,
+  SerialConfig,
+  NetworkConfig,
+  ConnectionConfig,
+  ModbusRequest,
+  ModbusResponse,
+  ModbusRegister,
+  ModbusMessage,
+  ConnectionStatus,
+  DataFormat,
+  DataConverterOptions,
+  MonitoredRegister,
+  MonitorPoint,
+} from "./modbus";

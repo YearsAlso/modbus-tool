@@ -13,7 +13,7 @@ import {
 import { useConnectionStore, useSettingsStore } from "@/stores";
 import { useModbus, useSerialPorts } from "@/hooks";
 import { Plug, PlugZap, RefreshCw } from "lucide-react";
-import type { ConnectionConfig, ModbusProtocol } from "@/types";
+import type { SerialConfig, NetworkConfig, ModbusProtocol } from "@/types";
 
 const protocols: { value: ModbusProtocol; label: string }[] = [
   { value: "RTU", label: "Modbus RTU (Serial)" },
@@ -27,24 +27,48 @@ const dataBitsOptions = [5, 6, 7, 8] as const;
 const stopBitsOptions = [1, 2] as const;
 const parityOptions = ["none", "even", "odd"] as const;
 
+type ConfigState = SerialConfig | NetworkConfig;
+
+function createDefaultSerialConfig(settings: { defaultSlaveId: number; defaultTimeout: number }): SerialConfig {
+  return {
+    type: "serial",
+    protocol: "RTU",
+    port: "",
+    baudRate: 9600,
+    dataBits: 8,
+    stopBits: 1,
+    parity: "none",
+    slaveId: settings.defaultSlaveId,
+    timeout: settings.defaultTimeout,
+  };
+}
+
+function createDefaultNetworkConfig(settings: { defaultSlaveId: number; defaultTimeout: number }): NetworkConfig {
+  return {
+    type: "network",
+    protocol: "TCP",
+    host: "192.168.1.1",
+    port: 502,
+    slaveId: settings.defaultSlaveId,
+    timeout: settings.defaultTimeout,
+  };
+}
+
 export function ConnectionPanel() {
   const { status, error } = useConnectionStore();
   const { settings } = useSettingsStore();
   const { connect, disconnect } = useModbus();
   const { ports, loading: portsLoading, refreshPorts } = useSerialPorts();
 
-  const [config, setConfig] = useState<ConnectionConfig>({
-    protocol: settings.defaultProtocol,
-    port: "",
-    baudRate: 9600,
-    dataBits: 8,
-    stopBits: 1,
-    parity: "none",
-    host: "192.168.1.1",
-    port: 502,
-    slaveId: settings.defaultSlaveId,
-    timeout: settings.defaultTimeout,
-  });
+  const [config, setConfig] = useState<ConfigState>(createDefaultSerialConfig(settings));
+
+  const handleProtocolChange = (value: ModbusProtocol) => {
+    if (value === "RTU" || value === "ASCII") {
+      setConfig(createDefaultSerialConfig(settings));
+    } else {
+      setConfig(createDefaultNetworkConfig(settings));
+    }
+  };
 
   const handleConnect = async () => {
     await connect(config);
@@ -54,7 +78,7 @@ export function ConnectionPanel() {
     await disconnect();
   };
 
-  const isSerial = config.protocol === "RTU" || config.protocol === "ASCII";
+  const isSerial = config.type === "serial";
   const isConnected = status === "connected";
   const isConnecting = status === "connecting";
 
@@ -72,9 +96,7 @@ export function ConnectionPanel() {
           <Label>Protocol</Label>
           <Select
             value={config.protocol}
-            onValueChange={(value: ModbusProtocol) =>
-              setConfig({ ...config, protocol: value })
-            }
+            onValueChange={handleProtocolChange}
           >
             <SelectTrigger>
               <SelectValue />
@@ -108,7 +130,9 @@ export function ConnectionPanel() {
               </div>
               <Select
                 value={config.port}
-                onValueChange={(value) => setConfig({ ...config, port: value })}
+                onValueChange={(value) =>
+                  setConfig({ ...config, port: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select port..." />
@@ -127,7 +151,7 @@ export function ConnectionPanel() {
               <div className="space-y-2">
                 <Label>Baud Rate</Label>
                 <Select
-                  value={config.baudRate?.toString()}
+                  value={config.baudRate.toString()}
                   onValueChange={(value) =>
                     setConfig({ ...config, baudRate: parseInt(value) })
                   }
@@ -148,7 +172,7 @@ export function ConnectionPanel() {
               <div className="space-y-2">
                 <Label>Data Bits</Label>
                 <Select
-                  value={config.dataBits?.toString()}
+                  value={config.dataBits.toString()}
                   onValueChange={(value) =>
                     setConfig({ ...config, dataBits: parseInt(value) as 5 | 6 | 7 | 8 })
                   }
@@ -169,7 +193,7 @@ export function ConnectionPanel() {
               <div className="space-y-2">
                 <Label>Stop Bits</Label>
                 <Select
-                  value={config.stopBits?.toString()}
+                  value={config.stopBits.toString()}
                   onValueChange={(value) =>
                     setConfig({ ...config, stopBits: parseInt(value) as 1 | 2 })
                   }
@@ -218,7 +242,7 @@ export function ConnectionPanel() {
               <Label>Host</Label>
               <Input
                 placeholder="192.168.1.1"
-                value={config.host || ""}
+                value={config.host}
                 onChange={(e) => setConfig({ ...config, host: e.target.value })}
               />
             </div>
@@ -227,7 +251,7 @@ export function ConnectionPanel() {
               <Input
                 type="number"
                 placeholder="502"
-                value={config.port || ""}
+                value={config.port}
                 onChange={(e) =>
                   setConfig({ ...config, port: parseInt(e.target.value) })
                 }

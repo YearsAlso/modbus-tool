@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import type { ConnectionConfig, ConnectionStatus, ModbusMessage } from "@/types";
+import type { ConnectionStatus, ModbusMessage } from "@/types";
+import type { ConnectionConfig } from "@/lib/ipc";
 
 interface ConnectionState {
   status: ConnectionStatus;
