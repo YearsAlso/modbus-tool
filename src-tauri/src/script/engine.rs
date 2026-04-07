@@ -1,4 +1,4 @@
-//! Script execution engine - Simplified version
+//! Script execution engine
 
 use std::collections::HashMap;
 use uuid::Uuid;
@@ -36,6 +36,10 @@ impl ScriptEngine {
         self.scripts.get(id)
     }
     
+    pub fn get_script_mut(&mut self, id: &Uuid) -> Option<&mut Script> {
+        self.scripts.get_mut(id)
+    }
+    
     pub fn get_all_scripts(&self) -> Vec<&Script> {
         self.scripts.values().collect()
     }
@@ -44,22 +48,38 @@ impl ScriptEngine {
         self.statuses.get(id)
     }
     
+    /// Evaluate all scripts with current register values
+    /// Returns IDs of triggered scripts
     pub fn evaluate(&mut self, registers: &HashMap<String, u16>) -> Vec<Uuid> {
         let mut triggered = Vec::new();
         
-        for (id, script) in &self.scripts {
-            if !script.enabled {
-                continue;
-            }
+        // Collect IDs first to avoid borrowing issues
+        let script_ids: Vec<Uuid> = self.scripts.keys().cloned().collect();
+        
+        for id in script_ids {
+            // Get immutable references
+            let (enabled, trigger) = {
+                let script = match self.scripts.get(&id) {
+                    Some(s) => s,
+                    None => continue,
+                };
+                if !script.enabled {
+                    continue;
+                }
+                (script.enabled, script.trigger.clone())
+            };
             
-            if self.check_trigger(&script.trigger, registers) {
-                if let Some(status) = self.statuses.get_mut(id) {
+            // Check trigger
+            if self.check_trigger(&trigger, registers) {
+                // Mark as triggered
+                if let Some(status) = self.statuses.get_mut(&id) {
                     status.mark_triggered();
                 }
-                triggered.push(*id);
+                triggered.push(id);
             }
         }
         
+        // Update last values for change detection
         for (addr, value) in registers {
             self.last_values.insert(addr.clone(), *value);
         }
@@ -67,6 +87,7 @@ impl ScriptEngine {
         triggered
     }
     
+    /// Check if a trigger condition is met
     fn check_trigger(&self, trigger: &Trigger, registers: &HashMap<String, u16>) -> bool {
         match trigger {
             Trigger::Compare { register, operator, value } => {
@@ -82,6 +103,7 @@ impl ScriptEngine {
                 self.check_became(register, false, registers)
             }
             Trigger::Stable { register, .. } => {
+                // Simplified: just check if register exists
                 registers.contains_key(register)
             }
         }
