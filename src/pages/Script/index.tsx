@@ -41,6 +41,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { LogPanel } from "./LogPanel";
 
 export function ScriptListPage() {
   const navigate = useNavigate();
@@ -325,6 +326,9 @@ export function ScriptListPage() {
           })}
         </div>
       )}
+
+      {/* Execution Log Panel */}
+      <LogPanel />
     </div>
   );
 }

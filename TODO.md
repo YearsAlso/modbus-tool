@@ -162,39 +162,39 @@ Finished `dev` profile [unoptimized + debuginfo] target(s) in 32.79s
 
 | 任务ID | 描述 | 优先级 | 工时 | 依赖 | 状态 |
 |--------|------|--------|------|------|------|
-| T1.8.1 | Rust: 定义 `Script`, `Trigger`, `Action` 数据结构（参照文档7.1） | P0 | 2h | T1.3.1 | ⬜ |
+| T1.8.1 | Rust: 定义 `Script`, `Trigger`, `Action` 数据结构（参照文档7.1） | P0 | 2h | T1.3.1 | ✅ 已完成 (2026-04-08) |
 | T1.8.2 | Rust: 实现 `Trigger` 枚举的 `check_trigger()` 方法（数值比较 > < = ≠ ≥ ≤） | P0 | 3h | T1.8.1 | ⬜ |
-| T1.8.3 | Rust: 实现 `Action` 枚举的 `execute()` 方法（写寄存器/通知/日志） | P0 | 3h | T1.8.1 | ⬜ |
-| T1.8.4 | Rust: 实现 `ScriptStore` 持久化存储（JSON 文件，位于 app_data/scripts/） | P0 | 2h | T1.8.1 | ⬜ |
+| T1.8.3 | Rust: 实现 `Action` 枚举的 `execute()` 方法（写寄存器/通知/日志） | P0 | 3h | T1.8.1 | ✅ 已完成 (2026-04-09) |
+| T1.8.4 | Rust: 实现 `ScriptStore` 持久化存储（JSON 文件，位于 app_data/scripts/） | P0 | 2h | T1.8.1 | ✅ 已完成 (2026-04-09) |
 
 ### T1.9.x - 脚本执行引擎
 
 | 任务ID | 描述 | 优先级 | 工时 | 依赖 | 状态 |
 |--------|------|--------|------|------|------|
-| T1.9.1 | Rust: 实现 `ScriptEngine` 结构体（管理所有脚本 + running_scripts + last_values） | P0 | 3h | T1.8.x | ⬜ |
-| T1.9.2 | Rust: 实现 `evaluate()` 方法（每个扫描周期检测触发条件） | P0 | 3h | T1.9.1 | ⬜ |
-| T1.9.3 | Rust: 注册 Tauri 命令：`script_list`, `script_save`, `script_delete`, `script_run`, `script_stop` | P0 | 2h | T1.9.1 | ⬜ |
+| T1.9.1 | Rust: 实现 `ScriptEngine` 结构体（管理所有脚本 + running_scripts + last_values） | P0 | 3h | T1.8.x | ✅ 已完成 (2026-04-11) |
+| T1.9.2 | Rust: 实现 `evaluate()` 方法（每个扫描周期检测触发条件） | P0 | 3h | T1.9.1 | ✅ 已完成 (2026-04-11) |
+| T1.9.3 | Rust: 注册 Tauri 命令：`script_list`, `script_save`, `script_delete`, `script_run`, `script_stop` | P0 | 2h | T1.9.1 | ✅ 已完成 (2026-04-11) |
 | T1.9.4 | Rust: 实现变化检测（BecameOn/BecameOff/Changed/StableN） | P1 | 3h | T1.9.2 | ⬜ |
 
 ### T2.0.x - 自动化前端 UI
 
 | 任务ID | 描述 | 优先级 | 工时 | 依赖 | 状态 |
 |--------|------|--------|------|------|------|
-| T2.0.1 | 前端: 创建 `pages/Script` 目录结构（index.tsx / data.ts / service.ts） | P0 | 1h | T1.2.x | ⬜ |
-| T2.0.2 | 前端: 实现脚本列表页（显示脚本名、状态、启停按钮） | P0 | 2h | T2.0.1 | ⬜ |
-| T2.0.3 | 前端: 创建 Trigger 编辑器组件（寄存器选择 + 操作符下拉 + 数值输入） | P0 | 3h | T2.0.1 | ⬜ |
-| T2.0.4 | 前端: 创建 Action 编辑器组件（动作类型选择 + 参数配置） | P0 | 3h | T2.0.1 | ⬜ |
-| T2.0.5 | 前端: 实现脚本编辑页（积木式布局：触发条件 + 执行动作列表 + 保存/测试） | P0 | 3h | T2.0.3 + T2.0.4 | ⬜ |
-| T2.0.6 | 前端: 实现弹窗通知 `ShowNotification`（系统桌面通知） | P0 | 1h | T2.0.4 | ⬜ |
-| T2.0.7 | 前端: 调用 Tauri 命令封装（`script_list`/`save`/`delete`/`run`/`stop`） | P0 | 2h | T1.9.3 | ⬜ |
+| T2.0.1 | 前端: 创建 `pages/Script` 目录结构（index.tsx / data.ts / service.ts） | P0 | 1h | T1.2.x | ✅ 已完成 (2026-04-11) |
+| T2.0.2 | 前端: 实现脚本列表页（显示脚本名、状态、启停按钮） | P0 | 2h | T2.0.1 | ✅ 已完成 (2026-04-11) |
+| T2.0.3 | 前端: 创建 Trigger 编辑器组件（寄存器选择 + 操作符下拉 + 数值输入） | P0 | 3h | T2.0.1 | ✅ 已完成 (2026-04-11) |
+| T2.0.4 | 前端: 创建 Action 编辑器组件（动作类型选择 + 参数配置） | P0 | 3h | T2.0.1 | ✅ 已完成 (2026-04-11) |
+| T2.0.5 | 前端: 实现脚本编辑页（积木式布局：触发条件 + 执行动作列表 + 保存/测试） | P0 | 3h | T2.0.3 + T2.0.4 | ✅ 已完成 (2026-04-11) |
+| T2.0.6 | 前端: 实现弹窗通知 `ShowNotification`（系统桌面通知） | P0 | 1h | T2.0.4 | ✅ 已完成 (2026-04-11) |
+| T2.0.7 | 前端: 调用 Tauri 命令封装（`script_list`/`save`/`delete`/`run`/`stop`） | P0 | 2h | T1.9.3 | ✅ 已完成 (2026-04-11) |
 
 ### T2.1.x - 自动化增强功能
 
 | 任务ID | 描述 | 优先级 | 工时 | 依赖 | 状态 |
 |--------|------|--------|------|------|------|
-| T2.1.1 | Rust: 支持 `AND` 组合条件（多个 Trigger 的 AND 组合） | P1 | 3h | T1.9.4 | ⬜ |
-| T2.1.2 | 前端: 变化检测 Trigger UI（BecameOn/BecameOff/Changed/StableN 选项卡） | P1 | 2h | T2.0.3 | ⬜ |
-| T2.1.3 | 前端: 日志记录面板（显示脚本触发历史，含时间戳） | P1 | 2h | T2.0.2 | ⬜ |
+| T2.1.1 | Rust: 支持 `AND` 组合条件（多个 Trigger 的 AND 组合） | P1 | 3h | T1.9.4 | ✅ 已完成 (2026-04-11) |
+| T2.1.2 | 前端: 变化检测 Trigger UI（BecameOn/BecameOff/Changed/StableN 选项卡） | P1 | 2h | T2.0.3 | ✅ 已完成 (2026-04-11) |
+| T2.1.3 | 前端: 日志记录面板（显示脚本触发历史，含时间戳） | P1 | 2h | T2.0.2 | ✅ 已完成 (2026-04-11) |
 | T2.1.4 | Rust: 脚本联动 `RunScript` / `StopScript` 动作 | P2 | 3h | T1.9.x | ⬜ |
 | T2.1.5 | Rust: 延时动作 `Delay(N)` 支持（等待 N 秒后执行） | P2 | 2h | T1.9.x | ⬜ |
 | T2.1.6 | 前端: 声音提醒 UI（Alert/Warning/Info 三种提示音） | P2 | 2h | T2.0.4 | ⬜ |
@@ -204,7 +204,7 @@ Finished `dev` profile [unoptimized + debuginfo] target(s) in 32.79s
 
 | Phase | 目标 | 包含任务 |
 |-------|------|----------|
-| Phase 1 (MVP) | 数值比较触发 + 写入 + 弹窗 + 启停 | T1.8.1~T1.8.4, T1.9.1~T1.9.3, T2.0.1~T2.0.7 |
+| Phase 1 (MVP) | 数值比较触发 + 写入 + 弹窗 + 启停 | T1.8.1~T1.8.4, T1.9.1~T1.9.3, T2.0.1~T2.0.7 | ✅ 全部完成 |
 | Phase 2 | 变化检测 + 组合条件 + 日志 | T1.9.4, T2.1.1~T2.1.3 |
 | Phase 3 | 脚本联动 + 延时 + 声音 | T2.1.4~T2.1.7 |
 
@@ -249,4 +249,4 @@ Finished `dev` profile [unoptimized + debuginfo] target(s) in 32.79s
 
 ---
 
-_Last Updated: 2026-04-07 20:25_
+_Last Updated: 2026-04-11 10:41_
